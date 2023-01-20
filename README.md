@@ -1,4 +1,5 @@
 # gsg_app
+My application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
 
 Admin Interface :
 

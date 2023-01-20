@@ -1,5 +1,5 @@
 # gsg_app
-My application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
+My final project in the Flutter Course with Gaza Sky Geeks as a gift to the company for this training, an application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
 
 Admin Interface :
 

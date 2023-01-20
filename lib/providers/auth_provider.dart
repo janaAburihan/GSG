@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:gsg_app/admin/models/course.dart';
+import 'package:gsg_app/admin/views/screens/display_courses_screen.dart';
 import 'package:gsg_app/models/attendence.dart';
 import 'package:string_validator/string_validator.dart';
 import '../app_router/app_router.dart';
 import '../data_repositories/auth_helper.dart';
 import '../data_repositories/firestore_helper.dart';
-import '../models/app_user.dart';
+import '../admin/models/participent.dart';
 import '../models/link.dart';
 import '../models/task.dart';
-import '../views/screens/join_as_screen.dart';
+import '../views/screens/choose_course_screen.dart';
 import '../views/screens/course_screens/user_main_screen.dart';
 
 class AuthProvider extends ChangeNotifier {
   GlobalKey<FormState> signInKey = GlobalKey<FormState>();
   GlobalKey<FormState> signUpKey = GlobalKey<FormState>();
-  TextEditingController registerEmailController = TextEditingController();
+  //TextEditingController registerEmailController = TextEditingController();
   TextEditingController loginEmailController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController passwordRegisterController = TextEditingController();
+  //TextEditingController userNameController = TextEditingController();
+  //TextEditingController phoneController = TextEditingController();
+  // TextEditingController passwordRegisterController = TextEditingController();
   TextEditingController passwordLoginController = TextEditingController();
   AppUser? loggedUser;
   Course? loggedCourse;
@@ -75,12 +76,12 @@ class AuthProvider extends ChangeNotifier {
       String? userId = await AuthHelper.authHelper
           .signIn(loginEmailController.text, passwordLoginController.text);
       if (userId != null) {
-        loggedUser =
-            await FirestoreHelper.firestoreHelper.getUserFromFirestore(userId);
+        loggedUser = await FirestoreHelper.firestoreHelper
+            .getUserFromFirestore(course.id!, userId);
         notifyListeners();
-        if (loggedUser != null && loggedUser!.isTrainer) {
+        if (loggedUser != null) {
           AppRouter.appRouter.goToWidgetAndReplace(UserMainScreen(
-            isTrainer: loggedUser!.isTrainer,
+            user: loggedUser!,
             course: course,
           ));
         }
@@ -88,7 +89,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  signUp(Course course, bool isTrainer) async {
+  /*signUp(Course course, bool isTrainer) async {
     if (signUpKey.currentState!.validate()) {
       String? result = await AuthHelper.authHelper.signUp(
           registerEmailController.text, passwordRegisterController.text);
@@ -106,11 +107,13 @@ class AuthProvider extends ChangeNotifier {
         ));
       }
     }
-  }
+  }*/
 
-  getUser(String id) async {
-    loggedUser = await FirestoreHelper.firestoreHelper.getUserFromFirestore(id);
+  getUser(String courseId, String id) async {
+    loggedUser = await FirestoreHelper.firestoreHelper
+        .getUserFromFirestore(courseId, id);
     loggedUser!.id = id;
+    loggedUser!.courseId = courseId;
     notifyListeners();
   }
 
@@ -123,21 +126,28 @@ class AuthProvider extends ChangeNotifier {
 
   checkUser() async {
     await Future.delayed(const Duration(seconds: 3));
-    String? userId = AuthHelper.authHelper.checkUser();
+    /*String? userId = AuthHelper.authHelper.checkUser();
     if (userId != null) {
-      getUser(userId);
+      getUser(loggedUser!.courseId, userId);
       AppRouter.appRouter.goToWidgetAndReplace(UserMainScreen(
-        isTrainer: loggedUser!.isTrainer,
+        user: loggedUser!,
         course: getCourse(loggedUser!.courseId),
       ));
     } else {
-      AppRouter.appRouter.goToWidgetAndReplace(const JoinAsScreen());
-    }
+      AppRouter.appRouter.goToWidgetAndReplace(const ChooseCourseScreen());
+    }*/
+    AppRouter.appRouter.goToWidgetAndReplace(const ChooseCourseScreen());
+  }
+
+  checkAdmin() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    AppRouter.appRouter.goToWidgetAndReplace(const AllCoursesScreen());
   }
 
   signOut() async {
     await AuthHelper.authHelper.signOut();
-    AppRouter.appRouter.goToWidgetAndReplace(const JoinAsScreen());
+    AppRouter.appRouter.goToWidgetAndReplace(const ChooseCourseScreen());
   }
 
   //task methods
@@ -155,8 +165,6 @@ class AuthProvider extends ChangeNotifier {
           title: taskTitleController.text,
           description: taskDescriptionController.text,
           deadline: DateTime.parse(taskDeadlineController.text),
-          mark: int.parse(
-              taskMarkController.text == '' ? '0' : taskMarkController.text),
           courseId: courseId);
 
       String? id = await FirestoreHelper.firestoreHelper.addNewTask(task);
@@ -179,16 +187,50 @@ class AuthProvider extends ChangeNotifier {
 
   List<Task> allTasks = [];
   getAllTasks(String courseId) async {
-    //allTasks = null;
-    notifyListeners();
     List<Task>? tasks =
         await FirestoreHelper.firestoreHelper.getAllTasks(courseId);
     allTasks = tasks ?? [];
     notifyListeners();
   }
 
-  updateTask(Task task) async {}
-  deleteTask(Task task) async {}
+  updateTask(Task task) async {
+    AppRouter.appRouter.showLoadingDialog();
+    Task newTask = Task(
+      id: task.id,
+      publishingTime: task.publishingTime,
+      courseId: task.courseId,
+      title: taskTitleController.text.isEmpty
+          ? task.title
+          : taskTitleController.text,
+      description: taskDescriptionController.text,
+      deadline: taskDeadlineController.text.isEmpty
+          ? task.deadline
+          : DateTime.parse(taskDeadlineController.text),
+    );
+
+    bool? isUpdated = await FirestoreHelper.firestoreHelper.updateTask(newTask);
+
+    if (isUpdated != null && isUpdated) {
+      int index = allTasks.indexOf(task);
+      allTasks[index] = newTask;
+      taskTitleController.clear();
+      taskDescriptionController.clear();
+      taskDeadlineController.clear();
+      notifyListeners();
+      AppRouter.appRouter.hideDialog();
+      AppRouter.appRouter.hideDialog();
+    }
+  }
+
+  deleteTask(Task task) async {
+    AppRouter.appRouter.showLoadingDialog();
+    bool isDeleted = await FirestoreHelper.firestoreHelper.deleteTask(task);
+    if (isDeleted) {
+      allTasks.remove(task);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialog();
+  }
 
   //attendence methods
   addNewQuestion(String courseId) async {
@@ -220,7 +262,16 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  deleteQuestion(Attendence attendence) async {}
+  deleteAttendence(Attendence attendence) async {
+    AppRouter.appRouter.showLoadingDialog();
+    bool isDeleted =
+        await FirestoreHelper.firestoreHelper.deleteQuestion(attendence);
+    if (isDeleted) {
+      allAttendenceQuestions.remove(attendence);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialog();
+  }
 
   //link methods
   TextEditingController linkUrlController = TextEditingController();
@@ -254,7 +305,6 @@ class AuthProvider extends ChangeNotifier {
 
   List<Link> allLinks = [];
   getAllLinks(String courseId) async {
-    //allLinks = null;
     notifyListeners();
     List<Link>? links =
         await FirestoreHelper.firestoreHelper.getAllLinks(courseId);
@@ -262,6 +312,37 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateLink(Link link) async {}
-  deleteLink(Link link) async {}
+  updateLink(Link link) async {
+    AppRouter.appRouter.showLoadingDialog();
+    Link newLink = Link(
+      id: link.id,
+      courseId: link.courseId,
+      url: linkUrlController.text.isEmpty ? link.url : linkUrlController.text,
+      description: linkDescriptionController.text.isEmpty
+          ? link.description
+          : linkDescriptionController.text,
+    );
+
+    bool? isUpdated = await FirestoreHelper.firestoreHelper.updateLink(newLink);
+
+    if (isUpdated != null && isUpdated) {
+      int index = allLinks.indexOf(link);
+      allLinks[index] = newLink;
+      linkUrlController.clear();
+      linkDescriptionController.clear();
+      notifyListeners();
+      AppRouter.appRouter.hideDialog();
+      AppRouter.appRouter.hideDialog();
+    }
+  }
+
+  deleteLink(Link link) async {
+    AppRouter.appRouter.showLoadingDialog();
+    bool isDeleted = await FirestoreHelper.firestoreHelper.deleteLink(link);
+    if (isDeleted) {
+      allLinks.remove(link);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialog();
+  }
 }

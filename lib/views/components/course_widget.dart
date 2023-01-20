@@ -12,6 +12,7 @@ class CourseWidget extends StatelessWidget {
       elevation: 3,
       borderRadius: BorderRadius.circular(15),
       child: Container(
+        height: 250,
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -26,7 +27,7 @@ class CourseWidget extends StatelessWidget {
                   top: Radius.circular(10), bottom: Radius.circular(10)),
               child: SizedBox(
                   //width: 50,
-                  height: 200,
+                  height: 150,
                   child: Image.file(
                     File(course.imageUrl),
                     fit: BoxFit.cover,

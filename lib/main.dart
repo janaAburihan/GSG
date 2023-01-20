@@ -5,6 +5,7 @@ import 'package:gsg_app/providers/auth_provider.dart';
 import 'package:gsg_app/views/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'admin/providers/admin_provider.dart';
+import 'admin/views/screens/splash_screen.dart';
 import 'app_router/app_router.dart';
 
 void main() async {

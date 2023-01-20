@@ -15,8 +15,7 @@ class CourseWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-      },
+      onTap: () {},
       child: Container(
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(
@@ -62,8 +61,8 @@ class CourseWidget extends StatelessWidget {
                           backgroundColor: Colors.white,
                           child: IconButton(
                               onPressed: () {
-                                AppRouter.appRouter.goToWidget(
-                                    EditCourse(course: course));
+                                AppRouter.appRouter
+                                    .goToWidget(EditCourse(course: course));
                               },
                               icon: const Icon(Icons.edit)),
                         ),
@@ -86,7 +85,9 @@ class CourseWidget extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                   onPressed: () {
-                    AppRouter.appRouter.goToWidget(const AllParticipentsScreen());
+                    AppRouter.appRouter.goToWidget(AllParticipentsScreen(
+                      course: course,
+                    ));
                   },
                   child: const Text('Show Participents')),
             )

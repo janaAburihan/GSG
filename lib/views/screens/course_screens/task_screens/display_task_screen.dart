@@ -1,33 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:gsg_app/admin/models/course.dart';
-import 'package:gsg_app/data_repositories/firestore_helper.dart';
 import 'package:gsg_app/providers/auth_provider.dart';
 import 'package:gsg_app/views/components/custom_textField.dart';
 import 'package:provider/provider.dart';
 import '../../../../app_router/app_router.dart';
+import '../../../../admin/models/participent.dart';
 import '../../../../models/task.dart';
 import '../user_main_screen.dart';
 import 'edit_task_screen.dart';
 
-// ignore: must_be_immutable
 class DisplayTaskScreen extends StatelessWidget {
-  DisplayTaskScreen(
+  const DisplayTaskScreen(
       {super.key,
       required this.task,
-      required this.isTrainer,
-      required this.courseId});
+      required this.user,
+      required this.course});
   final Task task;
-  final bool isTrainer;
-  final String courseId;
-  late Course course;
-  getCourse() async {
-    course =
-        await FirestoreHelper.firestoreHelper.getCourseFromFirestore(courseId);
-  }
+  final AppUser user;
+  final Course course;
 
   @override
   Widget build(BuildContext context) {
-    getCourse();
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -35,13 +28,13 @@ class DisplayTaskScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              isTrainer
+              user.isTrainer
                   ? Row(
                       children: [
                         InkWell(
                           onTap: (() => AppRouter.appRouter
                                   .goToWidgetAndReplace(UserMainScreen(
-                                isTrainer: isTrainer,
+                                user: user,
                                 course: course,
                               ))),
                           child: Container(
@@ -93,7 +86,7 @@ class DisplayTaskScreen extends StatelessWidget {
                   : InkWell(
                       onTap: (() => AppRouter.appRouter
                               .goToWidgetAndReplace(UserMainScreen(
-                            isTrainer: isTrainer,
+                            user: user,
                             course: course,
                           ))),
                       child: Container(
@@ -142,7 +135,7 @@ class DisplayTaskScreen extends StatelessWidget {
               const SizedBox(
                 height: 50,
               ),
-              isTrainer
+              user.isTrainer
                   ? Center(
                       child: ElevatedButton(
                           onPressed: () {},

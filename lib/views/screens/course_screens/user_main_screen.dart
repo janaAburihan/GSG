@@ -7,14 +7,15 @@ import 'package:gsg_app/views/screens/course_screens/tasks_screen.dart';
 import 'package:gsg_app/views/screens/course_screens/zoom_meeting_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../admin/models/course.dart';
+import '../../../admin/models/participent.dart';
 
 class UserMainScreen extends StatelessWidget {
   const UserMainScreen({
     Key? key,
-    required this.isTrainer,
+    required this.user,
     required this.course,
   }) : super(key: key);
-  final bool isTrainer;
+  final AppUser user;
   final Course course;
 
   @override
@@ -140,16 +141,16 @@ class UserMainScreen extends StatelessWidget {
         ),
         body: TabBarView(children: [
           TasksScreen(
-            courseId: course.id!,
-            isTrainer: isTrainer,
+            course: course,
+            user: user,
           ),
           LinksScreen(
             courseId: course.id!,
-            isTrainer: isTrainer,
+            isTrainer: user.isTrainer,
           ),
           AttendenceScreen(
             courseId: course.id!,
-            isTrainer: isTrainer,
+            user: user,
           )
         ]),
       ),

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gsg_app/app_router/app_router.dart';
 import 'package:gsg_app/views/components/course_widget.dart';
-import 'package:gsg_app/views/screens/join_as_screen.dart';
+import 'package:gsg_app/views/screens/sign_in_screen.dart';
 import 'package:provider/provider.dart';
 import '../../admin/providers/admin_provider.dart';
-import 'course_screens/user_main_screen.dart';
 
 class ChooseCourseScreen extends StatelessWidget {
-  const ChooseCourseScreen({super.key, required this.isTrainer});
-  final bool isTrainer;
+  const ChooseCourseScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,26 +17,34 @@ class ChooseCourseScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(
-                onTap: (() => AppRouter.appRouter
-                    .goToWidgetAndReplace(const JoinAsScreen())),
-                child: Container(
-                    width: 80,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.blue),
-                    child: Row(
-                      children: const [
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Icon(Icons.arrow_back_ios),
-                        SizedBox(
-                          width: 1,
-                        ),
-                        Text('BACK')
-                      ],
-                    )),
+              Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'WELCOME TO',
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    ),
+                    Center(
+                      child: Row(
+                        children: [
+                          const Text(
+                            '       GAZA SKY GEEKS',
+                            style: TextStyle(
+                                fontSize: 32, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: Image.asset('images/gsg icon.jpg',
+                                fit: BoxFit.cover),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 30,
@@ -56,20 +62,35 @@ class ChooseCourseScreen extends StatelessWidget {
                       ? const Center(
                           child: Text('No Courses Found'),
                         )
-                      : ListView.builder(
-                          itemCount: provider.allCourses.length,
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                                onTap: () {
-                                  AppRouter.appRouter
-                                      .goToWidgetAndReplace(UserMainScreen(
-                                    isTrainer: isTrainer,
-                                    course: provider.allCourses[index],
-                                  ));
-                                },
-                                child:
-                                    CourseWidget(provider.allCourses[index]));
-                          });
+                      : Container(
+                          margin: const EdgeInsets.only(
+                              left: 60, right: 60, bottom: 20),
+                          child: ListView.builder(
+                              itemCount: provider.allCourses.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                    onTap: () {
+                                      AppRouter.appRouter.goToWidgetAndReplace(
+                                          SignInScreen(
+                                              course:
+                                                  provider.allCourses[index])
+                                          /*UserMainScreen(
+                                      isTrainer: isTrainer,
+                                      course: provider.allCourses[index],
+                                    )*/
+                                          );
+                                    },
+                                    child: Column(
+                                      children: [
+                                        CourseWidget(
+                                            provider.allCourses[index]),
+                                        const SizedBox(
+                                          height: 20,
+                                        )
+                                      ],
+                                    ));
+                              }),
+                        );
                 }),
               ),
             ],

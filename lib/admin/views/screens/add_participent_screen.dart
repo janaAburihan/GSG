@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:gsg_app/views/screens/choose_course_screen.dart';
-import 'package:gsg_app/views/screens/sign_in_screen.dart';
+import 'package:gsg_app/admin/views/screens/display_participents.dart';
 import 'package:provider/provider.dart';
+import '../../../app_router/app_router.dart';
+import '../../models/course.dart';
+import '../../../views/components/custom_textField.dart';
+import '../../providers/admin_provider.dart';
 
-import '../../admin/models/course.dart';
-import '../../app_router/app_router.dart';
-import '../../providers/auth_provider.dart';
-import '../components/custom_textField.dart';
-
-class SignUpScreen extends StatelessWidget {
-  const SignUpScreen(
-      {super.key, required this.course, required this.isTrainer});
+// ignore: must_be_immutable
+class AddNewParticipent extends StatefulWidget {
+  AddNewParticipent({
+    super.key,
+    required this.course,
+  });
   final Course course;
-  final bool isTrainer;
+  bool isTrainer = false;
 
+  @override
+  State<AddNewParticipent> createState() => _AddNewParticipentState();
+}
+
+class _AddNewParticipentState extends State<AddNewParticipent> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(20),
-          child: Consumer<AuthProvider>(
+          child: Consumer<AdminProvider>(
             builder: (context, provider, child) => Form(
-                key: provider.signInKey,
+                key: provider.signUpKey,
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       InkWell(
-                        onTap: (() => AppRouter.appRouter
-                                .goToWidgetAndReplace(ChooseCourseScreen(
-                              isTrainer: isTrainer,
-                            ))),
+                        onTap: (() {
+                          AppRouter.appRouter.goToWidgetAndReplace(
+                              AllParticipentsScreen(course: widget.course));
+                        }),
                         child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15)),
@@ -59,7 +65,7 @@ class SignUpScreen extends StatelessWidget {
                       CustomTextField(
                         validation: provider.phoneValidation,
                         label: 'Phone Number',
-                        controller: provider.phoneController,
+                        controller: provider.userPhoneNumberController,
                         textInputType: TextInputType.phone,
                       ),
                       const SizedBox(
@@ -68,7 +74,7 @@ class SignUpScreen extends StatelessWidget {
                       CustomTextField(
                         validation: provider.emailValidation,
                         label: 'Email',
-                        controller: provider.registerEmailController,
+                        controller: provider.userEmailController,
                         textInputType: TextInputType.emailAddress,
                       ),
                       const SizedBox(
@@ -77,36 +83,30 @@ class SignUpScreen extends StatelessWidget {
                       CustomTextField(
                         validation: provider.passwordValidation,
                         label: 'Password',
-                        controller: provider.passwordRegisterController,
+                        controller: provider.userPasswordController,
                         isPassword: true,
                       ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      CheckboxListTile(
+                          title: const Text('Is Trainer'),
+                          value: widget.isTrainer,
+                          onChanged: (v) {
+                            widget.isTrainer = !widget.isTrainer;
+                            setState(() {});
+                          }),
                       const SizedBox(
                         height: 100,
                       ),
                       ElevatedButton(
                           onPressed: () {
-                            provider.signUp(course, isTrainer);
+                            provider.addNewParticipent(
+                                widget.course, widget.isTrainer);
+                            AppRouter.appRouter.goToWidgetAndReplace(
+                                AllParticipentsScreen(course: widget.course));
                           },
-                          child: const Text('Sign Up')),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Already has an account?',
-                        style: TextStyle(color: Colors.grey[800]),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            AppRouter.appRouter
-                                .goToWidgetAndReplace(SignInScreen(
-                              course: course,
-                              isTrainer: isTrainer,
-                            ));
-                          },
-                          child: const Text('Sign In'))
+                          child: const Text('Add Participent')),
                     ],
                   ),
                 )),

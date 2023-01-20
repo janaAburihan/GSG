@@ -7,14 +7,18 @@ class AttendenceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: const Text(
-        'Attendence Question',
-      ),
-      subtitle: Text(attendence.publishingTime.toString()),
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey[800],
-        child: const Icon(Icons.question_mark),
+    return Container(
+      margin: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey)),
+      child: ListTile(
+        title: const Text('Attendence Question'),
+        subtitle: Text(attendence.publishingTime.toString()),
+        leading: CircleAvatar(
+          backgroundColor: Colors.grey[700],
+          child: const Icon(Icons.question_mark),
+        ),
       ),
     );
   }

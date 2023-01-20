@@ -1,17 +1,54 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:string_validator/string_validator.dart';
 import '../../app_router/app_router.dart';
+import '../../data_repositories/auth_helper.dart';
 import '../../data_repositories/firestore_helper.dart';
+import '../models/participent.dart';
 import '../models/course.dart';
 
 class AdminProvider extends ChangeNotifier {
   AdminProvider() {
     getAllCourses();
   }
+
+  //validation methods
+  String? emailValidation(String? email) {
+    if (email == null || email.isEmpty) {
+      return 'Required Field';
+    } else if (!(isEmail(email))) {
+      return 'Incorrect Email Syntax';
+    }
+    return null;
+  }
+
+  String? passwordValidation(String? password) {
+    if (password == null || password.isEmpty) {
+      return 'Required Field';
+    } else if (password.length <= 6) {
+      return 'Password must be larger than 6 characters';
+    }
+    return null;
+  }
+
   String? requiredValidation(String? content) {
     if (content == null || content.isEmpty) {
       return "Required field";
+    }
+    return null;
+  }
+
+  String? phoneValidation(String content) {
+    if (!isNumeric(content)) {
+      return "Incorrect phone number";
+    }
+    return null;
+  }
+
+  String? urlValidation(String content) {
+    if (!isURL(content)) {
+      return "Incorrect URL Syntax";
     }
     return null;
   }
@@ -66,16 +103,10 @@ class AdminProvider extends ChangeNotifier {
 
   // get courses
   List<Course> allCourses = [];
-  //List<AppUser>? allUsers;
   getAllCourses() async {
     allCourses = await FirestoreHelper.firestoreHelper.getAllCourses() ?? [];
     notifyListeners();
   }
-
-  /*getAllParticipents(String courseId) async {
-    allUsers = await FirestoreHelper.firestoreHelper.getParticipents(courseId);
-    notifyListeners();
-  }*/
 
   // delete course
   deleteCourse(Course course) async {
@@ -113,5 +144,85 @@ class AdminProvider extends ChangeNotifier {
       AppRouter.appRouter.hideDialog();
       AppRouter.appRouter.hideDialog();
     }
+  }
+
+  //Participents methods
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController userPhoneNumberController = TextEditingController();
+  TextEditingController userEmailController = TextEditingController();
+  TextEditingController userPasswordController = TextEditingController();
+  GlobalKey<FormState> signUpKey = GlobalKey<FormState>();
+  AppUser? loggedUser;
+
+  addNewParticipent(Course course, bool isTrainer) async {
+    if (signUpKey.currentState!.validate()) {
+      String? result = await AuthHelper.authHelper
+          .signUp(userEmailController.text, userPasswordController.text);
+      if (result != null) {
+        loggedUser = await FirestoreHelper.firestoreHelper.addNewParticipent(
+            AppUser(
+                id: result,
+                courseId: course.id!,
+                isTrainer: isTrainer,
+                email: userEmailController.text,
+                userName: userNameController.text,
+                phoneNumber: userPhoneNumberController.text,
+                password: userPasswordController.text));
+      }
+    }
+  }
+
+  List<AppUser> allParticipents = [];
+  getAllParticipents(String courseId) async {
+    List<AppUser>? users =
+        await FirestoreHelper.firestoreHelper.getParticipents(courseId);
+    allParticipents = users ?? [];
+    notifyListeners();
+  }
+
+  updateParticipent(AppUser user) async {
+    AppRouter.appRouter.showLoadingDialog();
+    AppUser newUser = AppUser(
+      id: user.id,
+      courseId: user.courseId,
+      userName: userNameController.text.isEmpty
+          ? user.userName
+          : userNameController.text,
+      email: userEmailController.text.isEmpty
+          ? user.email
+          : userEmailController.text,
+      phoneNumber: userPhoneNumberController.text.isEmpty
+          ? user.phoneNumber
+          : userPhoneNumberController.text,
+      password: userPasswordController.text.isEmpty
+          ? user.phoneNumber
+          : userPhoneNumberController.text,
+    );
+
+    bool? isUpdated =
+        await FirestoreHelper.firestoreHelper.updateParticipent(newUser);
+
+    if (isUpdated != null && isUpdated) {
+      int index = allParticipents.indexOf(user);
+      allParticipents[index] = newUser;
+      userEmailController.clear();
+      userPhoneNumberController.clear();
+      userNameController.clear();
+      notifyListeners();
+      AppRouter.appRouter.hideDialog();
+      AppRouter.appRouter.hideDialog();
+    }
+  }
+
+  deleteParticipent(AppUser user) async {
+    AppRouter.appRouter.showLoadingDialog();
+    bool isDeleted =
+        await FirestoreHelper.firestoreHelper.deleteParticipent(user);
+    if (isDeleted) {
+      AuthHelper.authHelper.firebaseAuth.currentUser!.delete();
+      allParticipents.remove(user);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialog();
   }
 }

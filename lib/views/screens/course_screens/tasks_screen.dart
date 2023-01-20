@@ -4,24 +4,25 @@ import 'package:gsg_app/providers/auth_provider.dart';
 import 'package:gsg_app/views/screens/course_screens/task_screens/add_task_screen.dart';
 import 'package:gsg_app/views/screens/course_screens/task_screens/display_task_screen.dart';
 import 'package:provider/provider.dart';
+import '../../../admin/models/course.dart';
+import '../../../admin/models/participent.dart';
 import '../../components/task_widget.dart';
 
 class TasksScreen extends StatelessWidget {
-  const TasksScreen(
-      {super.key, required this.courseId, required this.isTrainer});
-  final String courseId;
-  final bool isTrainer;
+  const TasksScreen({super.key, required this.course, required this.user});
+  final Course course;
+  final AppUser user;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, provider, child) {
-        provider.getAllTasks(courseId);
+        provider.getAllTasks(course.id!);
         return Scaffold(
-          floatingActionButton: isTrainer
+          floatingActionButton: user.isTrainer
               ? FloatingActionButton(
                   onPressed: (() => AppRouter.appRouter
-                      .goToWidget(AddNewTask(courseId: courseId))),
+                      .goToWidget(AddNewTask(courseId: course.id!))),
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -32,8 +33,8 @@ class TasksScreen extends StatelessWidget {
                     onTap: () => AppRouter.appRouter.goToWidget(
                         DisplayTaskScreen(
                             task: provider.allTasks[index],
-                            isTrainer: isTrainer,
-                            courseId: courseId)),
+                            user: user,
+                            course: course)),
                     child: TaskWidget(task: provider.allTasks[index]));
               }),
         );

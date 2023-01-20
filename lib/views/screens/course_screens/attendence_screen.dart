@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../admin/models/participent.dart';
 import '../../../providers/auth_provider.dart';
 import '../../components/attendence_widget.dart';
 
 class AttendenceScreen extends StatelessWidget {
   const AttendenceScreen(
-      {super.key, required this.courseId, required this.isTrainer});
+      {super.key, required this.courseId, required this.user});
   final String courseId;
-  final bool isTrainer;
+  final AppUser user;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class AttendenceScreen extends StatelessWidget {
       builder: (BuildContext context, provider, Widget? child) {
         provider.getAllQuestions(courseId);
         return Scaffold(
-          floatingActionButton: isTrainer
+          floatingActionButton: user.isTrainer
               ? FloatingActionButton(
                   onPressed: () {
                     provider.addNewQuestion(courseId);
@@ -26,15 +27,15 @@ class AttendenceScreen extends StatelessWidget {
           body: ListView.builder(
               itemCount: provider.allAttendenceQuestions.length,
               itemBuilder: (context, index) {
-                return isTrainer
+                return user.isTrainer
                     ? Stack(
                         children: [
                           AttendenceWidget(
                               attendence:
                                   provider.allAttendenceQuestions[index]),
                           Positioned(
-                              right: 15,
-                              top: 5,
+                              right: 20,
+                              top: 20,
                               child: Row(
                                 children: [
                                   CircleAvatar(
@@ -42,8 +43,8 @@ class AttendenceScreen extends StatelessWidget {
                                     backgroundColor: Colors.white,
                                     child: IconButton(
                                         onPressed: () {
-                                          provider.deleteLink(
-                                              provider.allLinks[index]);
+                                          provider.deleteAttendence(provider
+                                              .allAttendenceQuestions[index]);
                                         },
                                         icon: const Icon(Icons.delete)),
                                   ),

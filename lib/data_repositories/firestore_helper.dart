@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../admin/models/course.dart';
-import '../models/app_user.dart';
+import '../admin/models/participent.dart';
 import '../models/attendence.dart';
 import '../models/link.dart';
 import '../models/task.dart';
@@ -11,16 +11,14 @@ class FirestoreHelper {
   static FirestoreHelper firestoreHelper = FirestoreHelper._();
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  ////user methods
-  //register
-  addNewUser(AppUser appUser) async {
-    firestore.collection('users').doc(appUser.id).set(appUser.toMap());
-  }
-
   //login
-  Future<AppUser> getUserFromFirestore(String id) async {
-    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        await firestore.collection('users').doc(id).get();
+  Future<AppUser> getUserFromFirestore(String courseId, String id) async {
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await firestore
+        .collection('courses')
+        .doc(courseId)
+        .collection('participents')
+        .doc(id)
+        .get();
     Map<String, dynamic>? data = documentSnapshot.data();
     AppUser appUser = AppUser.fromMap(data!);
     return appUser;
@@ -35,21 +33,8 @@ class FirestoreHelper {
     return course;
   }
 
-  //get participents
-  getParticipents(String courseId) async {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await firestore.collection('users').get();
-    List<AppUser> appUsers =
-        querySnapshot.docs.map((e) => AppUser.fromMap(e.data())).toList();
-    return appUsers;
-  }
-
-  //update
-  updateUser(AppUser appUser) async {
-    await firestore.collection('users').doc(appUser.id).update(appUser.toMap());
-  }
-
   //// admin methods
+  ///courses
   Future<String?> addNewCourse(Course course) async {
     try {
       DocumentReference<Map<String, dynamic>> courseDocument =
@@ -99,7 +84,8 @@ class FirestoreHelper {
     }
   }
 
-  Future<List<AppUser>?> getAllParticipents(String courseId) async {
+  ///participents
+  Future<List<AppUser>?> getParticipents(String courseId) async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
         .collection('courses')
         .doc(courseId)
@@ -110,7 +96,46 @@ class FirestoreHelper {
     }).toList();
   }
 
-  ////inside the course:
+  addNewParticipent(AppUser appUser) async {
+    firestore
+        .collection('courses')
+        .doc(appUser.courseId)
+        .collection('participents')
+        .doc(appUser.id)
+        .set(appUser.toMap());
+  }
+
+  Future<bool?> updateParticipent(AppUser user) async {
+    try {
+      await firestore
+          .collection('courses')
+          .doc(user.courseId)
+          .collection('participents')
+          .doc(user.id)
+          .update(user.toMap());
+      return true;
+    } on Exception catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteParticipent(AppUser user) async {
+    try {
+      await firestore
+          .collection('courses')
+          .doc(user.courseId)
+          .collection('participents')
+          .doc(user.id)
+          .delete();
+      return true;
+    } on Exception catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
+  ////inside the course(user methods):
   // tasks functions
   Future<String?> addNewTask(Task task) async {
     try {
@@ -138,7 +163,21 @@ class FirestoreHelper {
     }).toList();
   }
 
-  //Future<bool?> deleteTask(Task task) async {}
+  Future<bool> deleteTask(Task task) async {
+    try {
+      await firestore
+          .collection('courses')
+          .doc(task.courseId)
+          .collection('tasks')
+          .doc(task.id)
+          .delete();
+      return true;
+    } on Exception catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
   Future<bool?> updateTask(Task task) async {
     try {
       await firestore
@@ -181,7 +220,21 @@ class FirestoreHelper {
     }).toList();
   }
 
-  //Future<bool?> deleteQuestion(Question question) async {}
+  Future<bool> deleteQuestion(Attendence question) async {
+    try {
+      await firestore
+          .collection('courses')
+          .doc(question.courseId)
+          .collection('questions')
+          .doc(question.id)
+          .delete();
+      return true;
+    } on Exception catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
   Future<bool?> updateAttendence(Attendence attendence) async {
     try {
       await firestore
@@ -224,7 +277,21 @@ class FirestoreHelper {
     }).toList();
   }
 
-  //Future<bool?> deleteRecord(Record record) async {}
+  Future<bool> deleteLink(Link link) async {
+    try {
+      await firestore
+          .collection('courses')
+          .doc(link.courseId)
+          .collection('links')
+          .doc(link.id)
+          .delete();
+      return true;
+    } on Exception catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
   Future<bool?> updateLink(Link link) async {
     try {
       await firestore

@@ -1,33 +1,34 @@
 import 'dart:convert';
+import '../admin/models/participent.dart';
 
 class Task {
   String? id;
   String courseId;
   String description;
   String title;
-  int mark;
   DateTime deadline;
   DateTime publishingTime;
+  Map<AppUser, String>? submitions;
 
   Task({
     this.id,
     required this.publishingTime,
     required this.courseId,
-    required this.mark,
     required this.description,
     required this.title,
     required this.deadline,
+    this.submitions,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'courseId': courseId,
-      'mark': mark,
       'description': description,
       'title': title,
       'deadline': deadline,
-      'publishingTime': publishingTime
+      'publishingTime': publishingTime,
+      'submitions': submitions,
     };
   }
 
@@ -38,8 +39,8 @@ class Task {
       description: map['description'] ?? '',
       title: map['title'] ?? '',
       deadline: DateTime.parse(map['publishingTime'].toDate().toString()),
-      mark: map['mark']?.toInt() ?? 0,
       publishingTime: DateTime.parse(map['publishingTime'].toDate().toString()),
+      submitions: map['submitions'] ?? '',
     );
   }
 

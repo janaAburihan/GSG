@@ -1,7 +1,9 @@
 # gsg_app
 My final project in the Flutter Course with Gaza Sky Geeks as a gift to the company for this training, an application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
 
-Admin Interface :
+
+
+# Admin Interface :
 
 ![Screenshot_1674246111](https://user-images.githubusercontent.com/105488402/213808549-e969fa83-f808-473f-9a43-d06164d72cfb.png)
 ![Screenshot_1674246235](https://user-images.githubusercontent.com/105488402/213808564-77bfbf8d-a5cc-4a0e-a7a1-81a212d29ad7.png)
@@ -15,7 +17,8 @@ _____________
 
 
 
-User Interface (Trainer) :
+
+# User Interface (Trainer) :
 
 ![Screenshot_1674247274](https://user-images.githubusercontent.com/105488402/213809062-8ae1dd62-76fd-40cc-959a-c48fb461f7c7.png)
 ![Screenshot_1674247292](https://user-images.githubusercontent.com/105488402/213809084-d0dc9fb7-037c-4977-8eb5-4ea0c7f4b17d.png)

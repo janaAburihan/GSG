@@ -8,7 +8,7 @@ Technologies used:
 - Dart programming language
 - Providers
 - Firebase, Firestore, Authentication
-- Third-party packages like Image Picker, Animated Splah Screen and String Validator; to check the validity of the emails and URL links used.
+- Third-party packages like Image Picker and String Validator; to check the validity of the emails and URL links used.
 
 
 

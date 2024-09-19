@@ -1,5 +1,5 @@
 # gsg_app
-My final project in the Flutter Course with Gaza Sky Geeks as a gift to the company for this training, an application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
+My final project in the Flutter Course with Gaza Sky Geeks, an application to manage Gaza Sky Geeks' training courses and bring trainers together with trainees.
 
 Each user has differnt permissions. Only the admin can add and delete participents. Trainers can add tasks, links, attendence questions and view submitions. Trainees can submit and answer questions. Dark mood is provided.
 
